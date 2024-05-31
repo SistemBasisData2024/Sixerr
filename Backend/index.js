@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const accountRepo = require('./repositories/repository.account');
 
@@ -10,6 +11,7 @@ const app = express();
 //Middleware
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 
 //Endpoint

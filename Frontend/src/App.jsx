@@ -1,12 +1,19 @@
-import React from "react";
-import Login from "./Login"
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from "./Login";
+import Register from './Register';
+import Test from './Test';
 import "./App.css";
 
 function App() {
   return (
     <>
-      <Login />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/test" element={<Test />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }
