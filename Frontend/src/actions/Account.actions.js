@@ -36,7 +36,7 @@ export const registerAccount = async (input) => {
 
     console.log("Response from Backend");
     console.log(response.data);
-    return baseApiResponse(response.data.results, true);
+    return baseApiResponse(response.data, true);
   } catch (error) {
     console.error(error);
     return baseApiResponse(null, false);

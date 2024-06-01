@@ -17,7 +17,7 @@ pool.connect().then(() => {
 });
 
 async function registerAccount(req, res) {
-    const {username, email, password} = req.body
+    const {username, email, password} = req.body;
 
 
     // hashing
@@ -46,7 +46,7 @@ async function registerAccount(req, res) {
 }
 
 async function loginAccount(req, res) {
-    const {email, password} = req.body
+    const {email, password} = req.body;
 
 
     // hashing

@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const accountRepo = require('./repositories/repository.account');
+const googleRepo = require('./repositories/repository.google');
 
 const port = process.env.port;
 const app = express();
@@ -20,6 +21,9 @@ app.get('/status', (req, res) => {
 });
 app.post('/register', accountRepo.registerAccount);
 app.post('/login', accountRepo.loginAccount);
+
+app.post('/uploadFile', googleRepo.uploadFile);
+app.delete('/deleteFile', googleRepo.deleteFile);
 
 
 app.listen(port, () => {
