@@ -1,5 +1,6 @@
 const { Pool } = require("pg");
 const crypto = require("crypto");
+const { uploadFile } = require("./repository.google");
 
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -17,7 +18,7 @@ pool.connect().then(() => {
 });
 
 async function registerAccount(req, res) {
-    const {username, email, password} = req.body;
+    const {username, email, password, profile_img} = req.body;
 
 
     // hashing
@@ -34,9 +35,9 @@ async function registerAccount(req, res) {
     // Post Account to Database
     try {
         const result = await pool.query(
-            `INSERT INTO accounts (username, email, password)
-            VALUES ($1, $2, $3) RETURNING *`,
-            [username, email, generatedPassword]
+            `INSERT INTO accounts (username, email, password, profile_img)
+            VALUES ($1, $2, $3, $4) RETURNING *`,
+            [username, email, generatedPassword, profile_img]
         );
         const newAccount = result.rows[0];
         res.status(201).send(newAccount);

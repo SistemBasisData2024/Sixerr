@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./Register.css";
 import { registerAccount } from './actions/Account.actions';
+import { uploadFile } from './actions/Google.actions';
 
 function Register() {
   const navigate = useNavigate();
@@ -11,7 +12,9 @@ function Register() {
     username: '',
     email: '',
     password: '',
+    profile_img: '',
   });
+  const [file, setFile] = useState(null);
 
   const change = e => {
     setFormData({
@@ -20,12 +23,36 @@ function Register() {
     });
   }
 
+  const imageChange = e => {
+    setFile(e.target.files[0]);
+  }
+
   const submitData = () => {
     event.preventDefault();
     console.log("formData:");
     console.log(formData);
+    console.log(file);
     
-    registerAccount(formData)
+    if (file) {
+      const fileData = new FormData();
+      fileData.append('file', file);
+      uploadFile(fileData)
+        .then((response) => {
+          if (response.data != null) {
+            console.log(response.data.id);
+            setFormData({
+              ...formData,
+              profile_img: response.data.id,
+            });
+          } else {
+            alert("Failed to upload file!");
+          }
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
+    } else {
+      registerAccount(formData)
       .then((response) => {
         if (response.data != null) {
           alert("Successfully registered account");
@@ -36,8 +63,26 @@ function Register() {
       })
       .catch((error) => {
         console.error(error.message);
-      })
+      });
+    }
   }
+
+  useEffect(() => {
+    if (formData.profile_img !== '') {
+      registerAccount(formData)
+        .then((response) => {
+          if (response.data != null) {
+            alert("Successfully registered account");
+            navigate("/");
+          } else {
+            alert("Failed to register account!");
+          }
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
+    }
+  }, [formData]);
 
   return (
     <>
@@ -56,6 +101,9 @@ function Register() {
             <div className="row">
               <i className="fas fa-lock"></i>
               <input name="password" type="password" onChange={change} value={formData.password} placeholder="Password" required />
+            </div>
+            <div className="row">
+              <input type="file" onChange={(imageChange)} />
             </div>
             <div className="row button">
               <input type="submit" value="Register" />

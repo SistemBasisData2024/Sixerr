@@ -1,7 +1,6 @@
 const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
-const { file } = require('googleapis/build/src/apis/file');
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
@@ -25,21 +24,26 @@ const drive = google.drive({
 })
 
 async function uploadFile(req, res) {
-    const {name, mimeType, dir, file} = req.body;
-    const filePath = path.join(dir, file);
+    const file = req.file;
+    console.log(req.file);
+    const directory = path.resolve(__dirname, '..');
+    const filePath = path.join(`${directory}/uploads`, file.filename);
 
     try {
+        // upload image to gdrive
         const result = await drive.files.create({
             requestBody: {
-                name: name,
+                name: file.originalname,
                 parents: [FOLDER_ID],
             },
             media: {
-                mimeType: mimeType,
+                mimeType: file.mimeType,
                 body: fs.createReadStream(filePath),
             },
         });
+        fs.unlinkSync(filePath); // delete temp file in server
         res.status(201).send(result.data);
+        return result.data;
     } catch (error) {
         res.status(500).send({error: "Internal Server Error"});
     }
