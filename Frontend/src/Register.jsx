@@ -33,7 +33,7 @@ function Register() {
     console.log(formData);
     console.log(file);
     
-    if (file) {
+    if (file) { /* upload image */
       const fileData = new FormData();
       fileData.append('file', file);
       uploadFile(fileData)
@@ -51,7 +51,7 @@ function Register() {
         .catch((error) => {
           console.error(error.message);
         });
-    } else {
+    } else { /* register account without image */
       registerAccount(formData)
       .then((response) => {
         if (response.data != null) {
@@ -68,7 +68,7 @@ function Register() {
   }
 
   useEffect(() => {
-    if (formData.profile_img !== '') {
+    if (formData.profile_img !== '') { /* wait for image to upload and register account with image id */
       registerAccount(formData)
         .then((response) => {
           if (response.data != null) {

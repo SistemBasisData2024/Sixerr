@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import "./Login.css";
 import { loginAccount } from './actions/Account.actions';
@@ -7,8 +8,9 @@ import { loginAccount } from './actions/Account.actions';
 function Login() {
   const navigate = useNavigate();
 
+  const [cookies, setCookies] = useCookies(["email", "logged"]);
   const [formData, setFormData] = useState({
-    email: '',
+    email: cookies.email,
     password: '',
   });
 
@@ -27,6 +29,8 @@ function Login() {
     loginAccount(formData)
       .then((response) => {
         if (response.data != null) {
+          setCookies("email", formData.email, { path: '/' });
+          setCookies("logged", true, { path: '/' });
           navigate("/test");
         } else {
           alert("Account not found!");
@@ -37,6 +41,14 @@ function Login() {
       })
   }
 
+  useEffect(() => {
+    if (cookies.logged) {
+      navigate("/test");
+      window.location.reload();
+    }
+  }, [cookies.logged]);
+
+  
   return (
     <>
       <div className="container" style={{maxWidth: '440px'}}>
