@@ -18,7 +18,7 @@ pool.connect().then(() => {
 });
 
 async function registerAccount(req, res) {
-    const {username, email, password, profile_img} = req.body;
+    const {username, email, password, seller_id, profile_img} = req.body;
 
 
     // hashing
@@ -35,9 +35,9 @@ async function registerAccount(req, res) {
     // Post Account to Database
     try {
         const result = await pool.query(
-            `INSERT INTO accounts (username, email, password, profile_img)
-            VALUES ($1, $2, $3, $4) RETURNING *`,
-            [username, email, generatedPassword, profile_img]
+            `INSERT INTO accounts (username, email, password, seller_id, profile_img)
+            VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+            [username, email, generatedPassword, seller_id, profile_img]
         );
         const newAccount = result.rows[0];
         res.status(201).send(newAccount);

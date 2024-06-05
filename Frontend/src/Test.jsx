@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
-import "./Test.css";
 
 
 function Test() {

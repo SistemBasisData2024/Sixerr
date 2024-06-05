@@ -8,7 +8,7 @@ import { loginAccount } from './actions/Account.actions';
 function Login() {
   const navigate = useNavigate();
 
-  const [cookies, setCookies] = useCookies(["email", "logged"]);
+  const [cookies, setCookies] = useCookies(["email", "imageId", "isSeller", "isLoggedIn"]);
   const [formData, setFormData] = useState({
     email: cookies.email,
     password: '',
@@ -29,9 +29,15 @@ function Login() {
     loginAccount(formData)
       .then((response) => {
         if (response.data != null) {
-          setCookies("email", formData.email, { path: '/' });
-          setCookies("logged", true, { path: '/' });
-          navigate("/test");
+          setCookies("email", response.data.email, { path: '/' });
+          setCookies("isLoggedIn", true, { path: '/' });
+          if (response.data.profile_img != null) setCookies("imageId", response.data.profile_img, { path: '/' });
+          if (response.data.seller_id != null) {
+            setCookies("isSeller", true, { path: '/' });
+          } else {
+            setCookies("isSeller", false, { path: '/' });
+          }
+          navigate("/");
         } else {
           alert("Account not found!");
         }
@@ -40,13 +46,6 @@ function Login() {
         console.error(error.message);
       })
   }
-
-  useEffect(() => {
-    if (cookies.logged) {
-      navigate("/test");
-      window.location.reload();
-    }
-  }, [cookies.logged]);
 
   
   return (

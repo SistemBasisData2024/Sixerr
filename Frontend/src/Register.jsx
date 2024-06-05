@@ -12,6 +12,7 @@ function Register() {
     username: '',
     email: '',
     password: '',
+    seller_id: '',
     profile_img: '',
   });
   const [file, setFile] = useState(null);
