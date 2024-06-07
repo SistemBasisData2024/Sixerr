@@ -1,6 +1,5 @@
 const { Pool } = require("pg");
 const crypto = require("crypto");
-const { uploadFile } = require("./repository.google");
 
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -46,6 +45,33 @@ async function registerAccount(req, res) {
     }
 }
 
+async function getAccounts(req, res) {
+    try {
+        const result = await pool.query(
+            `SELECT * FROM accounts`
+        );
+        res.status(201).send(result.rows);
+    } catch (error) {
+        res.status(500).send({error: "Internal Server Error"});
+    }
+}
+
+async function getAccountById(req, res) {
+    const {user_id} = req.body;
+
+    try {
+        const result = await pool.query(
+            `SELECT * FROM accounts
+            WHERE user_id = $1`,
+            [user_id]
+        );
+        const account = result.rows[0];
+        res.status(201).send(account);
+    } catch (error) {
+        res.status(500).send({error: "Internal Server Error"});
+    }
+}
+
 async function loginAccount(req, res) {
     const {email, password} = req.body;
 
@@ -76,7 +102,59 @@ async function loginAccount(req, res) {
     }
 }
 
+async function editAccount(req, res) {
+    const {username, email, password, seller_id, profile_img} = req.body;
+
+
+    // hashing
+    generatedPassword = null;
+    try {
+        const hash = crypto.createHash('md5');
+        hash.update(password);
+        generatedPassword = hash.digest('hex');
+    } catch (error) {
+        console.log("failed to hash password");
+    }
+
+
+    // Edit Account in Database
+    try {
+        const result = await pool.query(
+            `UPDATE accounts SET 
+            username = $1,
+            password = $3,
+            seller_id = $4,
+            profile_img = $5
+            WHERE email = $2 RETURNING *`,
+            [username, email, generatedPassword, seller_id, profile_img]
+        );
+        const account = result.rows[0];
+        res.status(201).send(account);
+    } catch (error) {
+        res.status(500).send({error: "Internal Server Error"});
+    }
+}
+
+async function deleteAccount(req, res) {
+    const {user_id} = req.body;
+
+    try {
+        const result = await pool.query(
+            `DELETE FROM accounts
+            WHERE user_id = $1`,
+            [user_id]
+        );
+        res.status(201).send({msg: "Account deleted"});
+    } catch (error) {
+        res.status(500).send({error: "Internal Server Error"});
+    }
+}
+
 module.exports = {
     registerAccount,
     loginAccount,
+    getAccounts,
+    getAccountById,
+    editAccount,
+    deleteAccount,
 };

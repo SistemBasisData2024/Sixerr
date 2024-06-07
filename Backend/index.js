@@ -3,6 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const accountRepo = require('./repositories/repository.account');
+const sellerRepo = require('./repositories/repository.seller');
+const paymentRepo = require('./repositories/repository.payment');
+const reviewRepo = require('./repositories/repository.review');
 const googleRepo = require('./repositories/repository.google');
 
 const port = process.env.port;
@@ -18,19 +21,48 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage }); // directory for temp files
 
 
-//Middleware
+// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 
-//Endpoint
+// Endpoints
 app.get('/status', (req, res) => {
     res.status(200).send({ status: "Server is running" });
 });
+
+// accounts
 app.post('/register', accountRepo.registerAccount);
 app.post('/login', accountRepo.loginAccount);
+app.get('/getAccounts', accountRepo.getAccounts);
+app.get('/getAccountById', accountRepo.getAccountById);
+app.put('/editAccount', accountRepo.editAccount);
+app.delete('/deleteAccount', accountRepo.deleteAccount);
 
+// sellers
+app.post('/registerSeller', sellerRepo.registerSeller);
+app.get('/getSellers', sellerRepo.getSellers);
+app.get('/getTopSellers', sellerRepo.getTopSellers);
+app.get('/getSellerById', sellerRepo.getSellerById);
+app.put('/editSeller', sellerRepo.editSeller);
+app.delete('/deleteSeller', sellerRepo.deleteSeller);
+
+// payments
+app.post('/makePayment', paymentRepo.makePayment);
+app.get('/getPayments', paymentRepo.getAllPayments);
+app.get('/getPaymentByBuyer', paymentRepo.getPaymentByBuyer);
+app.get('/getPaymentBySeller', paymentRepo.getPaymentBySeller);
+app.delete('/cancelPayment', paymentRepo.cancelPayment);
+
+//reviews
+app.post('/addReview', reviewRepo.addReview);
+app.get('/getReviewByBuyer', reviewRepo.getReviewByBuyer);
+app.get('/getReviewBySeller', reviewRepo.getReviewBySeller);
+app.put('/editReview', reviewRepo.editReview);
+app.delete('/deleteReview', reviewRepo.deleteReview);
+
+// google
 app.post('/uploadFile', upload.single('file'), googleRepo.uploadFile);
 app.delete('/deleteFile', googleRepo.deleteFile);
 
