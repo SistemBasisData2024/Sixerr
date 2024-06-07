@@ -28,11 +28,12 @@ function Login() {
     
     loginAccount(formData)
       .then((response) => {
-        if (response.data != null) {
+        if (response.data) {
+          setCookies("user_id", response.data.user_id, { path: '/' });
           setCookies("email", response.data.email, { path: '/' });
           setCookies("isLoggedIn", true, { path: '/' });
-          if (response.data.profile_img != null) setCookies("imageId", response.data.profile_img, { path: '/' });
-          if (response.data.seller_id != null) {
+          if (response.data.profile_img) setCookies("imageId", response.data.profile_img, { path: '/' });
+          if (response.data.seller_id) {
             setCookies("isSeller", true, { path: '/' });
           } else {
             setCookies("isSeller", false, { path: '/' });
@@ -44,7 +45,7 @@ function Login() {
       })
       .catch((error) => {
         console.error(error.message);
-      })
+      });
   }
 
   

@@ -93,10 +93,22 @@ async function deleteReview(req, res) {
     }
 }
 
+async function getRecentReviews(req, res) {
+    try {
+        const result = await pool.query(
+            `SELECT * FROM reviews ORDER BY review_id DESC LIMIT 10`
+        );
+        res.status(200).send(result.rows);
+    } catch (error) {
+        res.status(500).send({error: "Internal Server Error"});
+    }
+}
+
 module.exports = {
     addReview,
     getReviewByBuyer,
     getReviewBySeller,
     editReview,
     deleteReview,
+    getRecentReviews,
 };

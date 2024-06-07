@@ -61,6 +61,7 @@ app.get('/getReviewByBuyer', reviewRepo.getReviewByBuyer);
 app.get('/getReviewBySeller', reviewRepo.getReviewBySeller);
 app.put('/editReview', reviewRepo.editReview);
 app.delete('/deleteReview', reviewRepo.deleteReview);
+app.get('/getReviews', reviewRepo.getRecentReviews);
 
 // google
 app.post('/uploadFile', upload.single('file'), googleRepo.uploadFile);
