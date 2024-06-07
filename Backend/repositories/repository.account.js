@@ -57,8 +57,8 @@ async function getAccounts(req, res) {
 }
 
 async function getAccountById(req, res) {
-    const {user_id} = req.body;
-
+    const {user_id} = req.query;
+    console.log(user_id);
     try {
         const result = await pool.query(
             `SELECT * FROM accounts
@@ -66,6 +66,7 @@ async function getAccountById(req, res) {
             [user_id]
         );
         const account = result.rows[0];
+        
         res.status(201).send(account);
     } catch (error) {
         res.status(500).send({error: "Internal Server Error"});

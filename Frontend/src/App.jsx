@@ -8,6 +8,7 @@ import Seller from './Seller';
 import Search from './Search';
 import Review from './Review';
 import Dashboard from './Dashboard';
+import Test from './Test';
 import "./App.css";
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/review" element={<Review />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/test" element={<Test />} />
         </Routes>
       </BrowserRouter>
     </>

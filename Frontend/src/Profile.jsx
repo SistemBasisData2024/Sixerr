@@ -13,10 +13,11 @@ function Profile() {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                console.log('Fetching user data for user_id:', cookies.user_id); // Debugging log
-                const response = await axios.get('http://localhost:5000/getAccountById', {
-                    user_id: cookies.user_id
-                });
+                console.log('Fetching user data for user_id:', cookies.user_id);
+                
+                const response = await axios.get('http://localhost:5000/getAccountById',
+                    { params: { user_id: cookies.user_id } }
+                );
                 console.log('Response from backend:', response);
                 if (response.data) {
                     setUserData(response.data);
@@ -25,7 +26,7 @@ function Profile() {
                         setProfileImage(`https://drive.google.com/thumbnail?id=${response.data.profile_img}`);
                     }
                 } else {
-                    console.log('No data received from backend'); // Debugging log
+                    console.log('No data received from backend');
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -58,7 +59,7 @@ function Profile() {
         setIsEditing(false);
     };
 
-    console.log('User Data:', userData); // Debugging log
+    console.log('User Data:', userData);
     return (
         <div className="min-h-screen bg-[#1abc9c] flex items-center justify-center">
             <Navbar />
