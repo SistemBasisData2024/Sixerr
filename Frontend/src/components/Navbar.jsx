@@ -3,7 +3,7 @@ import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Navbar() {
-    const [cookies, setCookies] = useCookies(["email", "imageId", "isSeller", "isLoggedIn"]);
+    const [cookies, setCookies, removeCookie] = useCookies(["user_id", "email", "imageId", "isSeller", "isLoggedIn", "seller_id"]);
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -31,23 +31,19 @@ function Navbar() {
                         Search
                     </button>
                 </form>
-                {cookies.isSeller ? (
-                    <Link className="hover:bg-gray-700 p-2 rounded" to="/dashboard">Dashboard</Link>
-                ) : (
-                    <Link className="hover:bg-gray-700 p-2 rounded" to="/registerSeller">Register as Seller</Link>
+                <Link className="hover:bg-gray-700 p-2 rounded" to="/search">Sellers</Link>
+                {cookies.isLoggedIn && (
+                    <>
+                        {cookies.isSeller ? (
+                            <Link className="hover:bg-gray-700 p-2 rounded" to="/dashboard">Dashboard</Link>
+                        ) : (
+                            <Link className="hover:bg-gray-700 p-2 rounded" to="/registerSeller">Register as Seller</Link>
+                        )}
+                    </>
                 )}
                 {cookies.isLoggedIn ? (
                     <div className="flex items-center space-x-4">
-                        <Link className="hover:bg-gray-700 p-2 rounded" to="/profile">About Me</Link>
-                        <a 
-                            className="hover:bg-gray-700 p-2 rounded cursor-pointer" 
-                            onClick={e => {
-                                e.preventDefault();
-                                setCookies("isLoggedIn", false, { path: '/' });
-                                navigate('/');
-                            }}>
-                            Sign Out
-                        </a>
+                        <Link className="hover:bg-gray-700 p-2 rounded" to="/profile">Profile</Link>
                         <div className="w-14 h-14 rounded-full overflow-hidden">
                             <img src={`https://drive.google.com/thumbnail?id=${cookies.imageId}`} alt="User" />
                         </div>

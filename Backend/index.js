@@ -55,6 +55,7 @@ app.get('/getPayments', paymentRepo.getAllPayments);
 app.get('/getPaymentByBuyer', paymentRepo.getPaymentByBuyer);
 app.get('/getPaymentBySeller', paymentRepo.getPaymentBySeller);
 app.delete('/cancelPayment', paymentRepo.cancelPayment);
+app.put('/markPaymentDone', paymentRepo.markPaymentDone);
 
 //reviews
 app.post('/addReview', reviewRepo.addReview);
@@ -63,6 +64,7 @@ app.get('/getReviewBySeller', reviewRepo.getReviewBySeller);
 app.put('/editReview', reviewRepo.editReview);
 app.delete('/deleteReview', reviewRepo.deleteReview);
 app.get('/getReviews', reviewRepo.getRecentReviews);
+app.get('/getReviewByUser', reviewRepo.getReviewByUser);
 
 // google
 app.post('/uploadFile', upload.single('file'), googleRepo.uploadFile);

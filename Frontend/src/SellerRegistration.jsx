@@ -15,24 +15,37 @@ function SellerRegistration() {
         portfolio_id: '',
         location: '',
     });
-    const [file, setFile] = useState(null);
+    const [profileImage, setProfileImage] = useState(null);
+    const [portfolioFile, setPortfolioFile] = useState(null);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
+    const handleProfileImageChange = (e) => {
+        setProfileImage(e.target.files[0]);
+    };
+
+    const handlePortfolioChange = (e) => {
+        setPortfolioFile(e.target.files[0]);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (file) {
-            const fileData = new FormData();
-            fileData.append('file', file);
-            const uploadResponse = await axios.post('http://localhost:5000/uploadFile', fileData);
-            formData.seller_img_id = uploadResponse.data.id;
+        if (profileImage) {
+            const profileImageData = new FormData();
+            profileImageData.append('file', profileImage);
+            const profileUploadResponse = await axios.post('http://localhost:5000/uploadFile', profileImageData);
+            formData.seller_img_id = profileUploadResponse.data.id;
         }
+
+        if (portfolioFile) {
+            const portfolioData = new FormData();
+            portfolioData.append('file', portfolioFile);
+            const portfolioUploadResponse = await axios.post('http://localhost:5000/uploadFile', portfolioData);
+            formData.portfolio_id = portfolioUploadResponse.data.id;
+        }
+
         await axios.post('http://localhost:5000/registerSeller', formData);
         setCookies('isSeller', true, { path: '/' });
         navigate('/');
@@ -81,7 +94,16 @@ function SellerRegistration() {
                         <label className="block text-gray-700">Profile Image</label>
                         <input
                             type="file"
-                            onChange={handleFileChange}
+                            onChange={handleProfileImageChange}
+                            className="w-full p-2 border border-gray-300 rounded mt-2"
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">Portfolio (PDF)</label>
+                        <input
+                            type="file"
+                            accept="application/pdf"
+                            onChange={handlePortfolioChange}
                             className="w-full p-2 border border-gray-300 rounded mt-2"
                         />
                     </div>

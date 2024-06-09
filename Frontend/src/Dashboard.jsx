@@ -49,7 +49,7 @@ function Dashboard() {
 
     const fetchOrders = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/getOrdersBySeller', {
+            const response = await axios.get('http://localhost:5000/getPaymentBySeller', {
                 params: { seller_id: cookies.seller_id }
             });
             setOrders(response.data);
@@ -94,6 +94,25 @@ function Dashboard() {
         await axios.put('http://localhost:5000/editSeller', formData);
         setSellerData(formData);
         setIsEditing(false);
+    };
+
+    const handleMarkDone = async (paymentId) => {
+        try {
+            await axios.put('http://localhost:5000/markPaymentDone', { payment_id: paymentId });
+            fetchOrders();
+            fetchSellerData();
+        } catch (error) {
+            console.error('Error marking payment as done:', error);
+        }
+    };    
+
+    const handleCancel = async (paymentId) => {
+        try {
+            await axios.delete('http://localhost:5000/cancelPayment', { data: { payment_id: paymentId } });
+            fetchOrders();
+        } catch (error) {
+            console.error('Error cancelling payment:', error);
+        }
     };
 
     return (
@@ -213,11 +232,28 @@ function Dashboard() {
                     <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Recent Orders</h2>
                     <div className="space-y-4">
                         {orders.map(order => (
-                            <div key={order.order_id} className="bg-gray-100 p-4 rounded-lg shadow-md">
-                                <p className="text-gray-800 font-semibold">Order ID: {order.order_id}</p>
+                            <div key={order.payment_id} className="bg-gray-100 p-4 rounded-lg shadow-md">
+                                <p className="text-gray-800 font-semibold">Order ID: {order.payment_id}</p>
                                 <p className="text-gray-700">Buyer: {order.buyer_name}</p>
-                                <p className="text-gray-700">Amount: ${order.amount}</p>
-                                <p className="text-gray-700">Status: {order.status}</p>
+                                <p className="text-gray-700">Order Details: {order.order_details}</p>
+                                <p className="text-gray-700">Payment Time: {new Date(order.payment_time).toLocaleString()}</p>
+                                <p className="text-gray-700">Status: {order.done ? "Completed" : "Pending"}</p>
+                                {!order.done && (
+                                    <div className="mt-2 flex space-x-2">
+                                        <button
+                                            className="bg-green-500 text-white p-2 rounded-lg hover:bg-green-400 transition duration-300"
+                                            onClick={() => handleMarkDone(order.payment_id)}
+                                        >
+                                            Done
+                                        </button>
+                                        <button
+                                            className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-500 transition duration-300"
+                                            onClick={() => handleCancel(order.payment_id)}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -233,7 +269,7 @@ function Dashboard() {
                         </div>
                         <div className="bg-gray-100 p-4 rounded-lg shadow-md">
                             <h3 className="text-lg font-semibold text-gray-800">Total Earnings</h3>
-                            <p className="text-gray-700">${sellerData.total_earnings}</p>
+                            <p className="text-gray-700">${sellerData.earnings}</p>
                         </div>
                     </div>
                 </div>

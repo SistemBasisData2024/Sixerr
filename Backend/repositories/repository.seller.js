@@ -62,7 +62,6 @@ async function getTopSellers(req, res) {
 
 async function getSellerById(req, res) {
     const {seller_id} = req.query;
-    console.log(req.query);
 
     try {
         const result = await pool.query(

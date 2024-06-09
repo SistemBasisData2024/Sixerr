@@ -16,11 +16,18 @@ function Search() {
     useEffect(() => {
         if (query) {
             handleSearch(query);
+        } else {
+            fetchAllSellers();
         }
     }, [query]);
 
     const handleSearch = async (searchQuery) => {
         const response = await axios.get(`http://localhost:5000/searchSellers`, { params: { query: searchQuery } });
+        setResults(response.data);
+    };
+
+    const fetchAllSellers = async () => {
+        const response = await axios.get(`http://localhost:5000/getSellers`);
         setResults(response.data);
     };
 
@@ -48,22 +55,28 @@ function Search() {
                     />
                     <button type="submit" className="w-full bg-gray-900 text-white p-2 rounded mt-2 hover:bg-gray-700">Search</button>
                 </form>
-                <div className="flex flex-wrap space-x-4">
-                    {results.map(seller => (
-                        <div
-                            key={seller.seller_id}
-                            className="bg-white p-4 rounded-lg shadow-md max-w-xs cursor-pointer"
-                            onClick={() => handleSellerClick(seller.seller_id)}
-                        >
-                            <div className="w-14 h-14 rounded-full overflow-hidden mb-4">
-                                <img src={`https://drive.google.com/thumbnail?id=${seller.seller_img_id}`} alt={seller.seller_name} className="w-full h-auto" />
+                {results.length > 0 ? (
+                    <div className="flex flex-wrap space-x-4">
+                        {results.map(seller => (
+                            <div
+                                key={seller.seller_id}
+                                className="bg-white p-4 rounded-lg shadow-md max-w-xs cursor-pointer"
+                                onClick={() => handleSellerClick(seller.seller_id)}
+                            >
+                                <div className="w-14 h-14 rounded-full overflow-hidden mb-4">
+                                    <img src={`https://drive.google.com/thumbnail?id=${seller.seller_img_id}`} alt={seller.seller_name} className="w-full h-auto" />
+                                </div>
+                                <h3 className="text-xl font-semibold">{seller.seller_name}</h3>
+                                <p>Price: ${seller.seller_price}</p>
+                                <p>Rating: {seller.rating_count ? (seller.rating_total).toFixed(1) : 'No ratings yet'} ({seller.rating_count} reviews)</p>
                             </div>
-                            <h3 className="text-xl font-semibold">{seller.seller_name}</h3>
-                            <p>Price: ${seller.seller_price}</p>
-                            <p>Rating: {(seller.rating_total / seller.rating_count).toFixed(1)} ({seller.rating_count} reviews)</p>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-white text-center">
+                        <p>No results found for "{searchQuery}".</p>
+                    </div>
+                )}
             </div>
         </div>
     );

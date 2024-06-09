@@ -17,7 +17,6 @@ pool.connect().then(() => {
 
 async function addReview(req, res) {
     const {buyer_id, seller_id, review, rating} = req.body;
-    console.log(req.body);
 
     try {
         const result = await pool.query(
@@ -42,14 +41,12 @@ async function addReview(req, res) {
 
         res.status(201).send(newReview);
     } catch (error) {
-        console.log(error);
         res.status(500).send({error: "Internal Server Error"});
     }
 }
 
 async function getReviewBySeller(req, res) {
     const { seller_id } = req.query;
-    console.log('Received request for reviews of seller:', seller_id);
 
     try {
         const result = await pool.query(
@@ -59,7 +56,6 @@ async function getReviewBySeller(req, res) {
             WHERE reviews.seller_id = $1`,
             [seller_id]
         );
-        console.log('Query result:', result.rows);
         res.status(200).send(result.rows);
     } catch (error) {
         console.error('Error fetching reviews for seller:', error);
@@ -82,10 +78,38 @@ async function getReviewByBuyer(req, res) {
     }
 }
 
+async function getReviewByUser(req, res) {
+    const { user_id } = req.query;
+
+    try {
+        const result = await pool.query(
+            `SELECT reviews.*, sellers.seller_name
+            FROM reviews
+            JOIN sellers ON reviews.seller_id = sellers.seller_id
+            WHERE buyer_id = $1`,
+            [user_id]
+        );
+        res.status(200).send(result.rows);
+    } catch (error) {
+        console.error('Error fetching reviews for buyer:', error);
+        res.status(500).send({ error: "Internal Server Error" });
+    }
+}
+
 async function editReview(req, res) {
     const {review_id, review, rating} = req.body;
 
     try {
+        const { rows } = await pool.query(
+            `SELECT * FROM reviews WHERE review_id = $1`,
+            [review_id]
+        );
+        const oldReview = rows[0];
+        if (!oldReview) {
+            return res.status(404).send({error: "Review not found"});
+        }
+        const ratingDifference = rating - oldReview.rating;
+
         const result = await pool.query(
             `UPDATE reviews SET
             review = $2,
@@ -93,8 +117,24 @@ async function editReview(req, res) {
             WHERE review_id = $1 RETURNING *`,
             [review_id, review, rating]
         );
-        res.status(201).send(result.rows[0]);
+        const updatedReview = result.rows[0];
+
+        const updateRatingQuery = `
+            UPDATE sellers
+            SET rating_all = rating_all + $1
+            WHERE seller_id = $2
+        `;
+        await pool.query(updateRatingQuery, [ratingDifference, oldReview.seller_id]);
+        const updateRatingTotal = `
+            UPDATE sellers
+            SET rating_total = rating_all / rating_count
+            WHERE seller_id = $1
+        `;
+        await pool.query(updateRatingTotal, [oldReview.seller_id]);
+
+        res.status(201).send(updatedReview);
     } catch (error) {
+        console.log(error);
         res.status(500).send({error: "Internal Server Error"});
     }
 }
@@ -103,11 +143,35 @@ async function deleteReview(req, res) {
     const {review_id} = req.body;
 
     try {
+        const { rows } = await pool.query(
+            `SELECT * FROM reviews WHERE review_id = $1`,
+            [review_id]
+        );
+        const reviewToDelete = rows[0];
+        if (!reviewToDelete) {
+            return res.status(404).send({error: "Review not found"});
+        }
+
         const result = await pool.query(
             `DELETE FROM reviews
             WHERE review_id = $1`,
             [review_id]
         );
+
+        const updateRatingQuery = `
+            UPDATE sellers
+            SET rating_all = rating_all - $1,
+            rating_count = rating_count - 1
+            WHERE seller_id = $2
+        `;
+        await pool.query(updateRatingQuery, [reviewToDelete.rating, reviewToDelete.seller_id]);
+        const updateRatingTotal = `
+            UPDATE sellers
+            SET rating_total = rating_all / rating_count
+            WHERE seller_id = $1
+        `;
+        await pool.query(updateRatingTotal, [reviewToDelete.seller_id]);
+
         res.status(201).send({msg: "Review deleted"});
     } catch (error) {
         res.status(500).send({error: "Internal Server Error"});
@@ -116,18 +180,24 @@ async function deleteReview(req, res) {
 
 async function getRecentReviews(req, res) {
     try {
-        const result = await pool.query(
-            `SELECT reviews.*, accounts.username AS buyer_name
+        const result = await pool.query(`
+            SELECT reviews.*, 
+                   accounts.username AS buyer_name,
+                   sellers.seller_name
             FROM reviews
             JOIN accounts ON reviews.buyer_id = accounts.user_id
-            ORDER BY review_id DESC LIMIT 10`
-        );
-        res.status(200).send(result.rows);
+            JOIN sellers ON reviews.seller_id = sellers.seller_id
+            ORDER BY reviews.review_id DESC
+            LIMIT 10
+        `);
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error('Error fetching recent reviews:', error);
-        res.status(500).send({error: "Internal Server Error"});
+        res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+
 
 
 module.exports = {
@@ -137,4 +207,5 @@ module.exports = {
     editReview,
     deleteReview,
     getRecentReviews,
+    getReviewByUser,
 };

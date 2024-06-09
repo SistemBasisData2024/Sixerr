@@ -58,7 +58,6 @@ async function getAccounts(req, res) {
 
 async function getAccountById(req, res) {
     const {user_id} = req.query;
-    console.log(user_id);
     try {
         const result = await pool.query(
             `SELECT * FROM accounts
