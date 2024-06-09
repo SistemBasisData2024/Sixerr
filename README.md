@@ -44,3 +44,9 @@ Sixerr adalah sebuah aplikasi web sederhana yang terinspirasi dari Fiverr, diran
     ```
     npm run dev
     ```
+
+## Dokumentasi
+- Meet Pertama
+![Meet1](Kelengkapan/Meet1.png)
+- Meet Kedua
+![Meet2](Kelengkapan/Meet2.png)
