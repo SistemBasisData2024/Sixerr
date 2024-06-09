@@ -2,11 +2,20 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './components/Navbar.jsx';
+import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 
 function Seller() {
     const { sellerId } = useParams();
     const [sellerData, setSellerData] = useState({});
     const [reviews, setReviews] = useState([]);
+    const [mapVisible, setMapVisible] = useState(false);
+    const [center, setCenter] = useState(null);
+    const [marker, setMarker] = useState(null);
+
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: import.meta.env.VITE_MAPS_API_KEY,
+    });
 
     useEffect(() => {
         const fetchSellerData = async () => {
@@ -29,6 +38,25 @@ function Seller() {
         fetchReviews();
     }, [sellerId]);
 
+    useEffect(() => {
+        if (isLoaded && sellerData.location) {
+            const geocoder = new window.google.maps.Geocoder();
+            geocoder.geocode({ address: sellerData.location }, (results, status) => {
+                if (status === 'OK') {
+                    const { lat, lng } = results[0].geometry.location;
+                    const newCenter = { lat: lat(), lng: lng() };
+                    setCenter(newCenter);
+                } else {
+                    console.error('Geocode was not successful for the following reason:', status);
+                }
+            });
+        }
+    }, [isLoaded, sellerData.location]);
+
+    const handleLocationClick = () => {
+        setMapVisible(!mapVisible);
+    };
+
     return (
         <div className="min-h-screen bg-[#1abc9c] p-4">
             <Navbar />
@@ -39,7 +67,15 @@ function Seller() {
                     </div>
                     <h2 className="text-2xl font-semibold text-center mb-4">{sellerData.seller_name}</h2>
                     <p className="text-center mb-2">Price: ${sellerData.seller_price}</p>
-                    <p className="text-center mb-2">Location: {sellerData.location}</p>
+                    <p className="text-center mb-2">
+                        Location: {sellerData.location}
+                        <button 
+                            className="bg-gray-900 text-white p-2 rounded-lg hover:bg-gray-700 transition duration-300 ml-2"
+                            onClick={handleLocationClick}
+                        >
+                            Show Map
+                        </button>
+                    </p>
                     <p className="text-center">Rating: {sellerData.rating_total} ({sellerData.rating_count} reviews)</p>
                     <div className="flex justify-center space-x-4 mt-4">
                         <Link to={`/order/${sellerId}`} className="bg-gray-900 text-white p-2 rounded-lg hover:bg-gray-700 transition duration-300">Order</Link>
@@ -59,6 +95,25 @@ function Seller() {
                     </div>
                 </div>
             </div>
+            {mapVisible && center && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-4 rounded-lg shadow-md max-w-3xl w-full">
+                        <GoogleMap
+                            mapContainerStyle={{ width: '100%', height: '400px' }}
+                            center={center}
+                            zoom={15}
+                        >
+                            <Marker position={center} />
+                        </GoogleMap>
+                        <button
+                            className="mt-4 bg-gray-900 text-white p-2 rounded-lg hover:bg-gray-700 transition duration-300"
+                            onClick={handleLocationClick}
+                        >
+                            Close Map
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
