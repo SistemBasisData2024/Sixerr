@@ -107,6 +107,22 @@ async function deleteSeller(req, res) {
     }
 }
 
+async function searchSellers(req, res) {
+    const { query } = req.query;
+
+    try {
+        const result = await pool.query(
+            `SELECT * FROM sellers
+             WHERE seller_name ILIKE $1 OR location ILIKE $1`,
+            [`%${query}%`]
+        );
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error searching sellers:', error);
+        res.status(500).send({ error: "Internal Server Error" });
+    }
+}
+
 module.exports = {
     registerSeller,
     getSellers,
@@ -114,4 +130,5 @@ module.exports = {
     getSellerById,
     editSeller,
     deleteSeller,
+    searchSellers,
 };

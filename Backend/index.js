@@ -47,6 +47,7 @@ app.get('/getTopSellers', sellerRepo.getTopSellers);
 app.get('/getSellerById', sellerRepo.getSellerById);
 app.put('/editSeller', sellerRepo.editSeller);
 app.delete('/deleteSeller', sellerRepo.deleteSeller);
+app.get('/searchSellers', sellerRepo.searchSellers);
 
 // payments
 app.post('/makePayment', paymentRepo.makePayment);

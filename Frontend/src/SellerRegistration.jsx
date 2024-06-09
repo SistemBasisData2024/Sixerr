@@ -6,9 +6,9 @@ import Navbar from './components/Navbar.jsx';
 
 function SellerRegistration() {
     const navigate = useNavigate();
-    const [cookies] = useCookies(['email']);
+    const [cookies] = useCookies(['user_id']);
     const [formData, setFormData] = useState({
-        user_id: cookies.email,
+        user_id: cookies.user_id,
         seller_name: '',
         seller_price: '',
         seller_img_id: '',
