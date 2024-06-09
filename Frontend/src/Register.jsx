@@ -89,7 +89,7 @@ function Register() {
     <>
       <div className="container" style={{maxWidth: '440px'}}>
         <div className="wrapper">
-          <div className="title"><span>Login Form</span></div>
+          <div className="title"><span>Register Form</span></div>
           <form onSubmit={submitData}>
           <div className="row">
               <i className="fas fa-user"></i>
