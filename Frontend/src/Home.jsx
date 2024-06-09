@@ -24,7 +24,7 @@ function Home() {
     
     const fetchRecentReviews = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/getReviews'); // Assuming there's an endpoint to get recent reviews
+            const response = await axios.get('http://localhost:5000/getReviews');
             setReviews(response.data);
         } catch (error) {
             console.error('Failed to fetch recent reviews:', error);
@@ -44,7 +44,7 @@ function Home() {
                             </div>
                             <h3 className="text-xl font-semibold">{seller.seller_name}</h3>
                             <p>Price: ${seller.seller_price}</p>
-                            <p>Rating: {(seller.rating_total / seller.rating_count).toFixed(1)} ({seller.rating_count} reviews)</p>
+                            <p>Rating: {(seller.rating_total).toFixed(1)} ({seller.rating_count} reviews)</p>
                             <Link to={`/seller/${seller.seller_id}`} className="text-blue-500 hover:underline">View Profile</Link>
                         </div>
                     ))}
@@ -55,7 +55,7 @@ function Home() {
                 <div className="flex flex-wrap mt-4 space-x-4">
                     {reviews.map(review => (
                         <div key={review.review_id} className="bg-white p-4 rounded-lg shadow-md max-w-xs">
-                            <h3 className="text-lg font-semibold">Buyer ID: {review.buyer_id}</h3>
+                            <h3 className="text-lg font-semibold">{review.buyer_name}</h3>
                             <p>Rating: {review.rating}</p>
                             <p>{review.review}</p>
                         </div>

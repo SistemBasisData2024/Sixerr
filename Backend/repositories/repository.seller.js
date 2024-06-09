@@ -52,7 +52,7 @@ async function getTopSellers(req, res) {
         const result = await pool.query(
             `SELECT * FROM sellers
             WHERE rating_count <> 0
-            ORDER BY (rating_total/rating_count) DESC`
+            ORDER BY rating_total DESC`
         );
         res.status(201).send(result.rows);
     } catch (error) {
@@ -61,7 +61,8 @@ async function getTopSellers(req, res) {
 }
 
 async function getSellerById(req, res) {
-    const {seller_id} = req.body;
+    const {seller_id} = req.query;
+    console.log(req.query);
 
     try {
         const result = await pool.query(

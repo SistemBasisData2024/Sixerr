@@ -17,6 +17,7 @@ pool.connect().then(() => {
 
 async function addReview(req, res) {
     const {buyer_id, seller_id, review, rating} = req.body;
+    console.log(req.body);
 
     try {
         const result = await pool.query(
@@ -25,24 +26,44 @@ async function addReview(req, res) {
             [buyer_id, seller_id, review, rating]
         );
         const newReview = result.rows[0];
+        const updateRatingQuery = `
+            UPDATE sellers
+            SET rating_all = rating_all + $1,
+            rating_count = rating_count + 1
+            WHERE seller_id = $2
+        `;
+        await pool.query(updateRatingQuery, [rating, seller_id]);
+        const updateRatingTotal = `
+            UPDATE sellers
+            SET rating_total = rating_all / rating_count
+            WHERE seller_id = $1
+        `;
+        await pool.query(updateRatingTotal, [seller_id]);
+
         res.status(201).send(newReview);
     } catch (error) {
+        console.log(error);
         res.status(500).send({error: "Internal Server Error"});
     }
 }
 
 async function getReviewBySeller(req, res) {
-    const {seller_id} = req.body;
+    const { seller_id } = req.query;
+    console.log('Received request for reviews of seller:', seller_id);
 
     try {
         const result = await pool.query(
-            `SELECT * FROM reviews
-            WHERE seller_id = $1`,
+            `SELECT reviews.*, accounts.username AS buyer_name
+            FROM reviews
+            JOIN accounts ON reviews.buyer_id = accounts.user_id
+            WHERE reviews.seller_id = $1`,
             [seller_id]
         );
-        res.status(201).send(result.rows);
+        console.log('Query result:', result.rows);
+        res.status(200).send(result.rows);
     } catch (error) {
-        res.status(500).send({error: "Internal Server Error"});
+        console.error('Error fetching reviews for seller:', error);
+        res.status(500).send({ error: "Internal Server Error" });
     }
 }
 
@@ -96,13 +117,18 @@ async function deleteReview(req, res) {
 async function getRecentReviews(req, res) {
     try {
         const result = await pool.query(
-            `SELECT * FROM reviews ORDER BY review_id DESC LIMIT 10`
+            `SELECT reviews.*, accounts.username AS buyer_name
+            FROM reviews
+            JOIN accounts ON reviews.buyer_id = accounts.user_id
+            ORDER BY review_id DESC LIMIT 10`
         );
         res.status(200).send(result.rows);
     } catch (error) {
+        console.error('Error fetching recent reviews:', error);
         res.status(500).send({error: "Internal Server Error"});
     }
 }
+
 
 module.exports = {
     addReview,

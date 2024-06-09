@@ -9,6 +9,8 @@ import Search from './Search';
 import Review from './Review';
 import Dashboard from './Dashboard';
 import Test from './Test';
+import Order from './Order';
+import AddReview from './AddReview';
 import "./App.css";
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/review" element={<Review />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/order/:sellerId" element={<Order />} />
+          <Route path="/addReview/:sellerId" element={<AddReview />} />
           <Route path="/test" element={<Test />} />
         </Routes>
       </BrowserRouter>

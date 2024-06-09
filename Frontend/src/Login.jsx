@@ -35,6 +35,7 @@ function Login() {
           if (response.data.profile_img) setCookies("imageId", response.data.profile_img, { path: '/' });
           if (response.data.seller_id) {
             setCookies("isSeller", true, { path: '/' });
+            setCookies("seller_id", response.data.seller_id, { path: '/' });
           } else {
             setCookies("isSeller", false, { path: '/' });
           }
