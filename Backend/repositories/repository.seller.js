@@ -25,6 +25,11 @@ async function registerSeller(req, res) {
             [user_id, seller_name, seller_price, seller_img_id, portfolio_id, location]
         );
         const newSeller = result.rows[0];
+        await pool.query(
+            `UPDATE accounts SET seller_id = $1 WHERE user_id = $2`,
+            [newSeller.seller_id, user_id]
+        );
+        await pool.query('COMMIT');
         res.status(201).send(newSeller);
     } catch (error) {
         res.status(500).send({error: "Internal Server Error"});
