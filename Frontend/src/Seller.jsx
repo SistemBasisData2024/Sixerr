@@ -3,14 +3,17 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './components/Navbar.jsx';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { useCookies } from 'react-cookie';
 
 function Seller() {
     const { sellerId } = useParams();
+    const [cookies] = useCookies(['seller_id']);
     const [sellerData, setSellerData] = useState({});
     const [reviews, setReviews] = useState([]);
     const [mapVisible, setMapVisible] = useState(false);
     const [center, setCenter] = useState(null);
     const [marker, setMarker] = useState(null);
+    const [portfolioVisible, setPortfolioVisible] = useState(false);
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -57,6 +60,10 @@ function Seller() {
         setMapVisible(!mapVisible);
     };
 
+    const handlePortfolioClick = () => {
+        setPortfolioVisible(!portfolioVisible);
+    };
+
     return (
         <div className="min-h-screen bg-[#1abc9c] p-4">
             <Navbar />
@@ -66,6 +73,16 @@ function Seller() {
                         <img src={`https://drive.google.com/thumbnail?id=${sellerData.seller_img_id}`} alt={sellerData.seller_name} className="w-full h-full object-cover" />
                     </div>
                     <h2 className="text-2xl font-semibold text-center mb-4">{sellerData.seller_name}</h2>
+                    {sellerData.portfolio_id && (
+                        <div className="text-center mb-4">
+                            <button 
+                                className="bg-gray-900 text-white p-2 rounded-lg hover:bg-gray-700 transition duration-300"
+                                onClick={handlePortfolioClick}
+                            >
+                                Show Portfolio
+                            </button>
+                        </div>
+                    )}
                     <p className="text-center mb-2">Price: ${sellerData.seller_price}</p>
                     <p className="text-center mb-2">
                         Location: {sellerData.location}
@@ -77,10 +94,12 @@ function Seller() {
                         </button>
                     </p>
                     <p className="text-center">Rating: {sellerData.rating_total} ({sellerData.rating_count} reviews)</p>
-                    <div className="flex justify-center space-x-4 mt-4">
-                        <Link to={`/order/${sellerId}`} className="bg-gray-900 text-white p-2 rounded-lg hover:bg-gray-700 transition duration-300">Order</Link>
-                        <Link to={`/addReview/${sellerId}`} className="bg-gray-900 text-white p-2 rounded-lg hover:bg-gray-700 transition duration-300">Add Review</Link>
-                    </div>
+                    {cookies.seller_id !== sellerId && (
+                        <div className="flex justify-center space-x-4 mt-4">
+                            <Link to={`/order/${sellerId}`} className="bg-gray-900 text-white p-2 rounded-lg hover:bg-gray-700 transition duration-300">Order</Link>
+                            <Link to={`/addReview/${sellerId}`} className="bg-gray-900 text-white p-2 rounded-lg hover:bg-gray-700 transition duration-300">Add Review</Link>
+                        </div>
+                    )}
                 </div>
                 <div className="lg:col-span-2">
                     <h2 className="text-2xl font-semibold text-white mb-4">Reviews</h2>
@@ -110,6 +129,23 @@ function Seller() {
                             onClick={handleLocationClick}
                         >
                             Close Map
+                        </button>
+                    </div>
+                </div>
+            )}
+            {portfolioVisible && sellerData.portfolio_id && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-4 rounded-lg shadow-md max-w-3xl w-full">
+                        <iframe
+                            src={`https://drive.google.com/file/d/${sellerData.portfolio_id}/preview`}
+                            width="100%"
+                            height="500px"
+                        ></iframe>
+                        <button
+                            className="mt-4 bg-gray-900 text-white p-2 rounded-lg hover:bg-gray-700 transition duration-300"
+                            onClick={handlePortfolioClick}
+                        >
+                            Close Portfolio
                         </button>
                     </div>
                 </div>
