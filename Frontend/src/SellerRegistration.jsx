@@ -6,7 +6,7 @@ import Navbar from './components/Navbar.jsx';
 
 function SellerRegistration() {
     const navigate = useNavigate();
-    const [cookies] = useCookies(['user_id']);
+    const [cookies, setCookies] = useCookies(['user_id']);
     const [formData, setFormData] = useState({
         user_id: cookies.user_id,
         seller_name: '',
@@ -34,6 +34,7 @@ function SellerRegistration() {
             formData.seller_img_id = uploadResponse.data.id;
         }
         await axios.post('http://localhost:5000/registerSeller', formData);
+        setCookies('isSeller', true, { path: '/' });
         navigate('/');
     };
 
